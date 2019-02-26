@@ -26,11 +26,9 @@
                 {% endfor %}
             </tbody>
         </table>
-    
+        
         <nav aria-label="Page navigation example">
-            
             <ul class="pagination">
-                
                 {% if posts.has_previous %}
                 <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
                 <li class="page-item"><a class="page-link" href="?page={{posts.previous_page_number}}">Previous</a></li>
@@ -45,11 +43,8 @@
                 <li class="page-item"><a class="page-link" href="?page={{posts.paginator.num_pages}}">Last</a></li>
                 {% endif %}
     
-                <div class="button_new" style="text-align:;">
-                        <a href="{% url 'newblog' %}">    <button type="button" class="btn btn-dark">New Post</button></a>
-                </div>
+                
             </ul>
-            
         </nav>
     </div>
 

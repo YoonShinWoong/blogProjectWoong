@@ -4,6 +4,7 @@ from django.utils import timezone
 from .models import Blog,Comment
 from django.core.paginator import Paginator
 from .forms import BlogPost,CommentForm
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def home(request):
@@ -42,6 +43,7 @@ def create(request):
         blog.save()
         return redirect('/blog/' + str(blog.id))
 
+@login_required
 def blogpost(request):
         # 입력된 내용 처리 -> POST
         if request.method == 'POST':
@@ -79,8 +81,9 @@ def blogedit(request, blog_id):
         # 빈 페이지 띄워주는 기능 -> GET
         else :
                 form = BlogPost(instance=blog)
-                return render(request, 'blog/edit.html', {'blog':blog,'form':form})
+                return render(request, 'edit.html', {'blog':blog,'form':form})
 
+@login_required
 def newreply(request):
         if request.method == 'POST':
                 comment = Comment()
@@ -91,3 +94,23 @@ def newreply(request):
                 return redirect('/blog/'+ str(comment.blog.id))
         else :
                 return redirect('home') # 홈으로
+
+@login_required
+def mypost(request):
+        blogs = Blog.objects.all()
+        blog_list = blogs.filter(username=request.user.username) # 내가 쓴글만
+        # blog_list = Blog.objects.all().order_by('-id') # 블로그 객체 다 가져오기
+        paginator = Paginator(blog_list, 6) # 3개씩 잘라내기
+        page = request.GET.get('page') # 페이지 번호 알아오기
+        if page is None:
+                page = 1
+        else:
+                page = int(page)
+        firstPage= (page//10) * 10 +1   # 페이지 시작
+        LastPage= firstPage+10           # 페이지 끝
+        posts = paginator.get_page(page) # 페이지 번호 인자로 넘겨주기
+        count = [1,2,3]
+        if LastPage>posts.paginator.num_pages:
+                LastPage=posts.paginator.num_pages+1
+        pageRange=range(firstPage,LastPage)
+        return render(request, 'mypost.html', {'blogs' :blogs, 'posts': posts, 'pageRange':pageRange, 'count':count})
